@@ -1,27 +1,9 @@
 <template>
   <div id="app">
     <h1>ToDoリスト</h1>
-    <input
-      type="radio"
-      name="type"
-      value="all"
-      v-model="selectType"
-      @change="changeDisplay"
-    />すべて
-    <input
-      type="radio"
-      name="type"
-      value="working"
-      v-model="selectType"
-      @change="changeDisplay"
-    />作業中
-    <input
-      type="radio"
-      name="type"
-      value="comp"
-      v-model="selectType"
-      @change="changeDisplay"
-    />完了
+    <input type="radio" name="type" value="すべて" v-model="selectType" />すべて
+    <input type="radio" name="type" value="作業中" v-model="selectType" />作業中
+    <input type="radio" name="type" value="完了" v-model="selectType" />完了
 
     <Table id="table">
       <tr>
@@ -30,60 +12,70 @@
         <td>状態</td>
         <td></td>
       </tr>
+      <tr v-for="(todo, key) in displayTodo" :key="key">
+        <td>{{ todo.id }}</td>
+        <td>{{ todo.comment }}</td>
+        <td>
+          <button @click="switchStatus(todo.id)">{{ todo.status }}</button>
+        </td>
+        <td>
+          <button @click="deleteAry(todo.id)">削除</button>
+        </td>
+      </tr>
     </Table>
     <h2>新規タスクの追加</h2>
-    <input type="text" id="input" />
+    <input type="text" id="input" v-model="inputContent" />
     <input type="button" id="add" value="追加" @click="addTask" />
   </div>
 </template>
 
 <script>
-import Task from './js/Task';
-
 export default {
   data() {
     return {
-      //現在選択されている状態(初期値：all)
-      selectType: 'all',
+      //現在選択されている状態(初期値：すべて)
+      selectType: 'すべて',
       //アウトプット配列作成
       todoList: [],
-      //テーブルオブジェクト保存用変数
-      eleTable: {},
       //テキストボックスオブジェクト保存用変数
       inputContent: '',
-      //タスククラスオブジェクト保存用変数
-      task: {},
     };
   },
-  mounted() {
-    //テーブルをオブジェクト化
-    this.eleTable = document.getElementById('table');
+  computed: {
+    //表示するタスクの制限
+    displayTodo() {
+      return this.todoList.filter((e) => {
+        //状態切り替えボタンが「すべて」であれば無条件、それ以外で有れば配列から絞り込み
+        return 'すべて' === this.selectType || e.status === this.selectType;
+      });
+    },
   },
   methods: {
     //タスク追加
     addTask() {
-      //テキストボックスをオブジェクト化
-      this.inputContent = document.getElementById('input').value;
-
       //インプット
       this.todoList.push({
+        id: this.todoList.length,
         comment: this.inputContent,
         status: '作業中',
-        delete: '削除',
       });
-
-      //タスククラスをオブジェクト化
-      this.task = new Task(this.eleTable, this.selectType, this.todoList);
-
-      //表示更新
-      this.task.changeDisplay();
     },
-    //表示更新
-    changeDisplay() {
-      //タスククラスをオブジェクト化
-      this.task = new Task(this.eleTable, this.selectType, this.todoList);
-
-      this.task.changeDisplay();
+    //配列削除
+    deleteAry(cntAry) {
+      //配列削除
+      this.todoList.splice(cntAry, 1);
+      //IDの入れ替え
+      this.todoList.forEach((todo, cnt) => {
+        todo.id = cnt;
+      });
+    },
+    //状態切り替え
+    switchStatus(cntAry) {
+      if (this.todoList[cntAry]['status'] === '作業中') {
+        this.todoList[cntAry]['status'] = '完了';
+      } else {
+        this.todoList[cntAry]['status'] = '作業中';
+      }
     },
   },
 };
