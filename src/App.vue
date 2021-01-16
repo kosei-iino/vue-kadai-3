@@ -12,7 +12,7 @@
         <td>状態</td>
         <td></td>
       </tr>
-      <tr v-for="(todo, key) in displayTodo" :key="key">
+      <tr v-for="(todo, key) in Todo" :key="key">
         <td>{{ todo.id }}</td>
         <td>{{ todo.comment }}</td>
         <td>
@@ -43,7 +43,7 @@ export default {
   },
   computed: {
     //表示するタスクの制限
-    displayTodo() {
+    Todo() {
       return this.todoList.filter((e) => {
         //状態切り替えボタンが「すべて」であれば無条件、それ以外で有れば配列から絞り込み
         return 'すべて' === this.selectType || e.status === this.selectType;
